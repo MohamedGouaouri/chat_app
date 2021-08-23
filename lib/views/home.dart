@@ -1,3 +1,5 @@
+import 'package:chat_app/models/message_model.dart';
+import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/views/drawer.dart';
 import 'package:flutter/material.dart';
 
@@ -39,9 +41,13 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child: Column(
           children: [
-            InboMessageWidget(),
-            InboMessageWidget(),
-            InboMessageWidget(),
+            InboxMessageWidget(message: chats[0]),
+            InboxMessageWidget(
+              message: chats[1],
+            ),
+            InboxMessageWidget(
+              message: chats[2],
+            ),
           ],
         ),
       ),
