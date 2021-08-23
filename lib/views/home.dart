@@ -1,6 +1,8 @@
 import 'package:chat_app/views/drawer.dart';
 import 'package:flutter/material.dart';
 
+import 'inbox_message.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -35,7 +37,13 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: Center(
-        child: Text("Your inbox is empty"),
+        child: Column(
+          children: [
+            InboMessageWidget(),
+            InboMessageWidget(),
+            InboMessageWidget(),
+          ],
+        ),
       ),
     );
   }
