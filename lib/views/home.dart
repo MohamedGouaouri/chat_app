@@ -16,41 +16,32 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: NavigationDrawer(),
-      appBar: AppBar(
-        elevation: 8,
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          "Inbox messages",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.search,
+        backgroundColor: Colors.white,
+        drawer: NavigationDrawer(),
+        appBar: AppBar(
+          elevation: 8,
+          iconTheme: IconThemeData(color: Colors.white),
+          title: Text(
+            "Inbox messages",
+            style: TextStyle(
+              color: Colors.white,
             ),
-            //color: Colors.white,
           ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            InboxMessageWidget(message: chats[0]),
-            InboxMessageWidget(
-              message: chats[1],
-            ),
-            InboxMessageWidget(
-              message: chats[2],
+          centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.search,
+              ),
+              //color: Colors.white,
             ),
           ],
         ),
-      ),
-    );
+        body: ListView.builder(
+            itemCount: chats.length,
+            itemBuilder: (BuildContext context, int index) {
+              return InboxMessageWidget(message: chats[index]);
+            }));
   }
 }
