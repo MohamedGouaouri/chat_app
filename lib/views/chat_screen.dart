@@ -1,16 +1,47 @@
+import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
-  User user;
-  ChatScreen({Key? key, required this.user}) : super(key: key);
+  List<Message> chats;
+  User sender, currentUser;
+
+  ChatScreen(
+      {Key? key,
+      required this.chats,
+      required this.sender,
+      required this.currentUser})
+      : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  List<Message> chatsState = [];
+  String inputFieldValue = "";
+  @override
+  void initState() {
+    super.initState();
+    chatsState = List.from(widget.chats);
+  }
+
+  sendMessage() {
+    if (inputFieldValue.isNotEmpty) {
+      //print(inputFieldValue);
+      setState(() {
+        chatsState.insert(
+            0,
+            Message(
+                sender: currentUser,
+                time: "11:10",
+                text: inputFieldValue,
+                unread: false));
+      });
+    }
+  }
+
   Widget sendMessageArea() {
     return Container(
       padding: EdgeInsets.all(8.0),
@@ -35,6 +66,11 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    inputFieldValue = value;
+                  });
+                },
                 decoration:
                     InputDecoration.collapsed(hintText: "Send a message ..."),
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
@@ -42,7 +78,9 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              sendMessage();
+            },
             icon: Icon(
               Icons.send,
             ),
@@ -59,7 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
         title: Text(
-          widget.user.name,
+          widget.sender.name,
           style: TextStyle(
             color: Colors.white,
           ),
@@ -81,28 +119,25 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: Column(
-              children: [
-                buildSenderMessageWidget(
-                    maxWidth: MediaQuery.of(context).size.width * 0.65,
-                    messageBody: "Hi there !",
-                    at: "12:30 PM",
-                    sender: widget.user),
-                buildSenderMessageWidget(
-                    maxWidth: MediaQuery.of(context).size.width * 0.65,
-                    messageBody: "How are you !",
-                    at: "12:31 PM",
-                    sender: widget.user),
-                buildOwnerMessageWidget(
-                    maxWidth: MediaQuery.of(context).size.width * 0.65,
-                    messageBody: "Hi t!",
-                    at: "12:32 PM",
-                    sender: widget.user),
-              ],
-            ),
+            child: ListView.builder(
+                itemCount: chatsState.length,
+                reverse: true,
+                itemBuilder: (BuildContext context, int index) {
+                  Message message = chatsState[index];
+                  return message.sender != currentUser
+                      ? buildSenderMessageWidget(
+                          maxWidth: MediaQuery.of(context).size.width * 0.65,
+                          messageBody: message.text,
+                          at: message.time,
+                          sender: message.sender)
+                      : buildOwnerMessageWidget(
+                          maxWidth: MediaQuery.of(context).size.width * 0.65,
+                          messageBody: message.text,
+                          at: message.time,
+                          sender: message.sender);
+                }),
           ),
-          // input area
-          sendMessageArea()
+          sendMessageArea(),
         ],
       ),
     );
@@ -115,65 +150,67 @@ buildSenderMessageWidget(
     required double maxWidth,
     required String messageBody,
     required String at}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Container(
-        alignment: Alignment.topLeft,
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: maxWidth,
+  return Container(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          alignment: Alignment.topLeft,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: maxWidth,
+            ),
+            padding: EdgeInsets.all(10.0),
+            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade100,
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                )
+              ],
+            ),
+            child: Text(
+              messageBody,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
-          padding: EdgeInsets.all(10.0),
-          margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade100,
-                spreadRadius: 1,
-                blurRadius: 2,
-              )
+        ),
+        Container(
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.fromLTRB(2, 0, 2, 2),
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: AssetImage(sender.imageUrl),
+                ),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade100,
+                        spreadRadius: 1,
+                        blurRadius: 2,
+                      )
+                    ]),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(at),
             ],
           ),
-          child: Text(
-            messageBody,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ),
-      Container(
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.fromLTRB(2, 0, 2, 2),
-              child: CircleAvatar(
-                radius: 20,
-                backgroundImage: AssetImage(sender.imageUrl),
-              ),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(20),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade100,
-                      spreadRadius: 1,
-                      blurRadius: 2,
-                    )
-                  ]),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(at),
-          ],
-        ),
-      )
-    ],
+        )
+      ],
+    ),
   );
 }
 

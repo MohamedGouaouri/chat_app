@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/views/chat_screen.dart';
@@ -37,7 +35,11 @@ class _InboMessageWidgetState extends State<InboxMessageWidget> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (_) => ChatScreen(user: widget.message.sender)));
+                builder: (_) => ChatScreen(
+                      chats: messages,
+                      sender: widget.message.sender,
+                      currentUser: currentUser,
+                    )));
       },
       child: Row(
         children: [
