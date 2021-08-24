@@ -21,6 +21,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   List<Message> chatsState = [];
   String inputFieldValue = "";
+  TextEditingController _controller = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -66,10 +67,18 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
+                controller: _controller,
                 onChanged: (value) {
                   setState(() {
                     inputFieldValue = value;
                   });
+                },
+                onSubmitted: (value) {
+                  setState(() {
+                    inputFieldValue = value;
+                  });
+                  _controller.clear();
+                  sendMessage();
                 },
                 decoration:
                     InputDecoration.collapsed(hintText: "Send a message ..."),
@@ -80,6 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             onPressed: () {
               sendMessage();
+              _controller.clear();
             },
             icon: Icon(
               Icons.send,
