@@ -1,6 +1,8 @@
+import 'package:chat_app/views/signin.dart';
 import 'package:flutter/material.dart';
 
 import 'views/home.dart';
+import 'views/signup.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,7 +32,7 @@ class MyApp extends StatelessWidget {
             },
           ),
           fontFamily: "KleeOne"),
-      home: HomePage(),
+      home: SignUpPage(),
     );
   }
 }
