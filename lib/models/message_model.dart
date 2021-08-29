@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'user_model.dart';
 
 class Message {
@@ -13,6 +15,15 @@ class Message {
     required this.text,
     required this.unread,
   });
+
+  static String toJson(Message message) {
+    return jsonEncode({
+      'sender': User.toJson(message.sender),
+      'text': message.text,
+      'time': message.time,
+      'unread': message.unread
+    });
+  }
 }
 
 // EXAMPLE CHATS ON HOME SCREEN

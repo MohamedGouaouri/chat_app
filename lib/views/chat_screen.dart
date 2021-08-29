@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +8,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
   List<Message> chats;
-  User sender, currentUser;
+  User peer, currentUser;
 
   ChatScreen(
       {Key? key,
       required this.chats,
-      required this.sender,
+      required this.peer,
       required this.currentUser})
       : super(key: key);
 
@@ -29,22 +31,29 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     chatsState = List.from(widget.chats);
     _channel =
-        WebSocketChannel.connect(Uri.parse('ws://127.0.0.1:8000/ws/iron/'));
+        WebSocketChannel.connect(Uri.parse('ws://127.0.0.1:8000/ws/me_iron/'));
+  }
+
+  @override
+  dispose() {
+    _channel.sink.close();
+    super.dispose();
   }
 
   sendMessage() {
+    // construct a message json object to be sent to the websocket server
+
+    inputFieldValue = _controller.text;
+
     if (inputFieldValue.isNotEmpty) {
-      //print(inputFieldValue);
-      _channel.sink.add(inputFieldValue);
-      setState(() {
-        chatsState.insert(
-            0,
-            Message(
-                sender: currentUser,
-                time: "11:10",
-                text: inputFieldValue,
-                unread: false));
-      });
+      Message message = Message(
+          sender: currentUser,
+          time: '10:30',
+          text: inputFieldValue,
+          unread: true);
+      String jsonMessage = Message.toJson(message);
+
+      _channel.sink.add(jsonMessage);
     }
   }
 
@@ -70,26 +79,12 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Expanded(
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 10),
-              child: TextField(
-                controller: _controller,
-                onChanged: (value) {
-                  setState(() {
-                    inputFieldValue = value;
-                  });
-                },
-                onSubmitted: (value) {
-                  setState(() {
-                    inputFieldValue = value;
-                  });
-                  _controller.clear();
-                  sendMessage();
-                },
-                decoration:
-                    InputDecoration.collapsed(hintText: "Send a message ..."),
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-              ),
-            ),
+                margin: EdgeInsets.symmetric(horizontal: 10),
+                child: Form(
+                    child: TextFormField(
+                  controller: _controller,
+                  decoration: InputDecoration(hintText: 'Type message ...'),
+                ))),
           ),
           IconButton(
             onPressed: () {
@@ -112,7 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
         title: Text(
-          widget.sender.name,
+          widget.peer.name,
           style: TextStyle(
             color: Colors.white,
           ),
@@ -134,34 +129,41 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-                itemCount: chatsState.length,
-                reverse: true,
-                itemBuilder: (BuildContext context, int index) {
-                  Message message = chatsState[index];
-                  return message.sender != currentUser
-                      ? StreamBuilder(builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return buildSenderMessageWidget(
-                                maxWidth:
-                                    MediaQuery.of(context).size.width * 0.65,
-                                messageBody: snapshot.data.toString(),
-                                at: message.time,
-                                sender: message.sender);
-                          }
-                          return buildSenderMessageWidget(
+            child: StreamBuilder(
+              stream: _channel.stream,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.hasData) {
+                  // get data from snapshot
+                  var data = jsonDecode(snapshot.data);
+                  Message newMessage = Message(
+                      sender: User.fromJson(data['sender']),
+                      time: data['time'],
+                      text: data['text'],
+                      unread: true);
+                  //print(data);
+                  chatsState.insert(0, newMessage);
+                }
+                return ListView.builder(
+                    itemCount: chatsState.length,
+                    reverse: true,
+                    itemBuilder: (BuildContext context, int index) {
+                      Message message = chatsState[index];
+                      return message.sender.equalTo(currentUser)
+                          ? buildOwnerMessageWidget(
+                              maxWidth:
+                                  MediaQuery.of(context).size.width * 0.65,
+                              messageBody: message.text,
+                              at: message.time,
+                              sender: currentUser)
+                          : buildSenderMessageWidget(
                               maxWidth:
                                   MediaQuery.of(context).size.width * 0.65,
                               messageBody: message.text,
                               at: message.time,
                               sender: message.sender);
-                        })
-                      : buildOwnerMessageWidget(
-                          maxWidth: MediaQuery.of(context).size.width * 0.65,
-                          messageBody: message.text,
-                          at: message.time,
-                          sender: message.sender);
-                }),
+                    });
+              },
+            ),
           ),
           sendMessageArea(),
         ],

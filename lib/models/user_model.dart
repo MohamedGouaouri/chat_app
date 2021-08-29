@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class User {
   int id;
   String name;
@@ -10,6 +12,28 @@ class User {
     required this.imageUrl,
     required this.isOnline,
   });
+
+  static String toJson(User user) {
+    return jsonEncode({
+      'id': user.id,
+      'name': user.name,
+      'imageUrl': user.imageUrl,
+      'isOnline': user.isOnline,
+    });
+  }
+
+  static User fromJson(String json) {
+    var data = jsonDecode(json);
+    return User(
+        id: data['id'],
+        name: data['name'],
+        imageUrl: data['imageUrl'],
+        isOnline: data['isOnline']);
+  }
+
+  bool equalTo(User other) {
+    return this.id == other.id;
+  }
 }
 
 // YOU - current user

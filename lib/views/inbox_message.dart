@@ -37,7 +37,7 @@ class _InboMessageWidgetState extends State<InboxMessageWidget> {
             MaterialPageRoute(
                 builder: (_) => ChatScreen(
                       chats: messages,
-                      sender: widget.message.sender,
+                      peer: widget.message.sender,
                       currentUser: currentUser,
                     )));
       },
