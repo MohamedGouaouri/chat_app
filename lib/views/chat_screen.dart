@@ -1,6 +1,7 @@
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 // ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
@@ -22,15 +23,19 @@ class _ChatScreenState extends State<ChatScreen> {
   List<Message> chatsState = [];
   String inputFieldValue = "";
   TextEditingController _controller = TextEditingController();
+  late final WebSocketChannel _channel;
   @override
   void initState() {
     super.initState();
     chatsState = List.from(widget.chats);
+    _channel =
+        WebSocketChannel.connect(Uri.parse('ws://127.0.0.1:8000/ws/iron/'));
   }
 
   sendMessage() {
     if (inputFieldValue.isNotEmpty) {
       //print(inputFieldValue);
+      _channel.sink.add(inputFieldValue);
       setState(() {
         chatsState.insert(
             0,
@@ -135,11 +140,22 @@ class _ChatScreenState extends State<ChatScreen> {
                 itemBuilder: (BuildContext context, int index) {
                   Message message = chatsState[index];
                   return message.sender != currentUser
-                      ? buildSenderMessageWidget(
-                          maxWidth: MediaQuery.of(context).size.width * 0.65,
-                          messageBody: message.text,
-                          at: message.time,
-                          sender: message.sender)
+                      ? StreamBuilder(builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return buildSenderMessageWidget(
+                                maxWidth:
+                                    MediaQuery.of(context).size.width * 0.65,
+                                messageBody: snapshot.data.toString(),
+                                at: message.time,
+                                sender: message.sender);
+                          }
+                          return buildSenderMessageWidget(
+                              maxWidth:
+                                  MediaQuery.of(context).size.width * 0.65,
+                              messageBody: message.text,
+                              at: message.time,
+                              sender: message.sender);
+                        })
                       : buildOwnerMessageWidget(
                           maxWidth: MediaQuery.of(context).size.width * 0.65,
                           messageBody: message.text,
@@ -154,8 +170,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-// Build a left message bubble of the a friend
-buildSenderMessageWidget(
+// Build a left message bubble of the friend
+Widget buildSenderMessageWidget(
     {required User sender,
     required double maxWidth,
     required String messageBody,
@@ -225,7 +241,7 @@ buildSenderMessageWidget(
 }
 
 // Builds the message bubble of the owner
-buildOwnerMessageWidget(
+Widget buildOwnerMessageWidget(
     {required User sender,
     required double maxWidth,
     required String messageBody,

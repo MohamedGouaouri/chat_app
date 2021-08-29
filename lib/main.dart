@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
             },
           ),
           fontFamily: "KleeOne"),
-      home: SignUpPage(),
+      home: HomePage(),
     );
   }
 }
