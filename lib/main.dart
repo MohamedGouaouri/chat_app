@@ -8,8 +8,15 @@ void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   // This widget is the root of your application.
+  @override
+  _MyAppState createState() => _MyAppState();
+  static _MyAppState of(BuildContext context) =>
+      context.findAncestorStateOfType<_MyAppState>()!;
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -32,7 +39,7 @@ class MyApp extends StatelessWidget {
             },
           ),
           fontFamily: "KleeOne"),
-      home: HomePage(),
+      home: SignInPage(),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
@@ -26,6 +27,8 @@ class _ChatScreenState extends State<ChatScreen> {
   String inputFieldValue = "";
   TextEditingController _controller = TextEditingController();
   late final WebSocketChannel _channel;
+
+  bool isTheSameSender = false;
   @override
   void initState() {
     super.initState();
@@ -42,18 +45,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
   sendMessage() {
     // construct a message json object to be sent to the websocket server
-
+    var currentTime = DateTime.now();
     inputFieldValue = _controller.text;
 
     if (inputFieldValue.isNotEmpty) {
       Message message = Message(
           sender: currentUser,
-          time: '10:30',
+          time: '${currentTime.hour}:${currentTime.minute}',
           text: inputFieldValue,
           unread: true);
       String jsonMessage = Message.toJson(message);
-
       _channel.sink.add(jsonMessage);
+      setState(() {
+        chatsState.insert(0, message);
+      });
     }
   }
 
@@ -154,13 +159,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                   MediaQuery.of(context).size.width * 0.65,
                               messageBody: message.text,
                               at: message.time,
-                              sender: currentUser)
+                              sender: currentUser,
+                              isSame: isTheSameSender)
                           : buildSenderMessageWidget(
                               maxWidth:
                                   MediaQuery.of(context).size.width * 0.65,
                               messageBody: message.text,
                               at: message.time,
-                              sender: message.sender);
+                              sender: message.sender,
+                              isSame: isTheSameSender);
                     });
               },
             ),
@@ -177,7 +184,8 @@ Widget buildSenderMessageWidget(
     {required User sender,
     required double maxWidth,
     required String messageBody,
-    required String at}) {
+    required String at,
+    required bool isSame}) {
   return Container(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +241,7 @@ Widget buildSenderMessageWidget(
               SizedBox(
                 width: 10,
               ),
-              Text(at),
+              isSame ? Text(at) : SizedBox.shrink(),
             ],
           ),
         )
@@ -247,7 +255,8 @@ Widget buildOwnerMessageWidget(
     {required User sender,
     required double maxWidth,
     required String messageBody,
-    required String at}) {
+    required String at,
+    required bool isSame}) {
   return Container(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,11 +281,13 @@ Widget buildOwnerMessageWidget(
             ),
           ),
         ),
-        Container(
-          padding: EdgeInsets.only(right: 10),
-          alignment: Alignment.topRight,
-          child: Text(at),
-        ),
+        isSame
+            ? Container(
+                padding: EdgeInsets.only(right: 10),
+                alignment: Alignment.topRight,
+                child: Text(at),
+              )
+            : SizedBox.shrink(),
       ],
     ),
   );

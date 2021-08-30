@@ -1,3 +1,4 @@
+import 'package:chat_app/views/home.dart';
 import 'package:flutter/material.dart';
 
 class SignInPage extends StatefulWidget {
@@ -26,8 +27,13 @@ class _SignInPageState extends State<SignInPage> {
 
   _sumbitAndSignIn() {
     if (_signInFormKey.currentState!.validate()) {
-      // network call to login
-      print(_email);
+      // ignore: todo
+      // TODO network call to login
+      if (_email == "test" && _password == "test") {
+        // switch to home screen
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => HomePage()));
+      }
     }
   }
 

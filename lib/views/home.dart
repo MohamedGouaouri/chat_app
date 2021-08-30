@@ -39,9 +39,14 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         body: ListView.builder(
-            itemCount: chats.length,
+            itemCount: 1,
             itemBuilder: (BuildContext context, int index) {
-              return InboxMessageWidget(message: chats[index]);
+              return InboxMessageWidget(
+                  message: Message(
+                      sender: ironMan,
+                      text: 'I have something to',
+                      time: '10:30',
+                      unread: true));
             }));
   }
 }
