@@ -56,9 +56,9 @@ class _ChatScreenState extends State<ChatScreen> {
           unread: true);
       String jsonMessage = Message.toJson(message);
       _channel.sink.add(jsonMessage);
-      setState(() {
-        chatsState.insert(0, message);
-      });
+      // setState(() {
+      //   chatsState.insert(0, message);
+      // });
     }
   }
 
