@@ -37,17 +37,12 @@ class User {
 }
 
 // YOU - current user
-final User currentUser = User(
-  id: 0,
-  name: 'MohamedG',
-  imageUrl: 'images/mohamed.jpg',
-  isOnline: true,
-);
+late User currentUser;
 
 // USERS
-final User ironMan = User(
+User ironMan = User(
   id: 1,
   name: 'Bhd_sd',
-  imageUrl: 'images/mohamed.jpeg',
+  imageUrl: 'images/mohamed.jpg',
   isOnline: true,
 );

@@ -1,3 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
+
+import 'package:chat_app/controllers/signin_controller.dart';
+import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/views/home.dart';
 import 'package:flutter/material.dart';
 
@@ -10,10 +16,11 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   final _signInFormKey = GlobalKey<FormState>();
-  String? _email;
+  String? _username;
   String? _password;
-
-  String? _emailValidator(String? value) {
+  Widget watingWidget = SizedBox.shrink();
+  bool loggedIn = false;
+  String? _usernameValidator(String? value) {
     if (value == null || value.isEmpty) {
       return "Please enter Yout email";
     }
@@ -25,16 +32,11 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
-  _sumbitAndSignIn() {
+  Future<bool>? _submitAndSignIn() async {
     if (_signInFormKey.currentState!.validate()) {
-      // ignore: todo
-      // TODO network call to login
-      if (_email == "test" && _password == "test") {
-        // switch to home screen
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => HomePage()));
-      }
+      return await signIn(_username, _password);
     }
+    return false;
   }
 
   @override
@@ -59,12 +61,12 @@ class _SignInPageState extends State<SignInPage> {
                   child: TextFormField(
                     onChanged: (value) {
                       setState(() {
-                        _email = value;
+                        _username = value;
                       });
                     },
-                    validator: _emailValidator,
+                    validator: _usernameValidator,
                     decoration: InputDecoration(
-                      hintText: "Email",
+                      hintText: "Username",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
                         borderSide: BorderSide(),
@@ -109,7 +111,33 @@ class _SignInPageState extends State<SignInPage> {
                     color: Theme.of(context).primaryColor,
                   ),
                   child: TextButton(
-                    onPressed: _sumbitAndSignIn,
+                    onPressed: () {
+                      setState(() {
+                        watingWidget = FutureBuilder(
+                            future: _submitAndSignIn(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<bool> snapshot) {
+                              if (!snapshot.hasData) {
+                                return CircularProgressIndicator();
+                              }
+                              loggedIn = snapshot.data!;
+
+                              if (!loggedIn) {
+                                return Text(
+                                  "Credentials error",
+                                  style: TextStyle(color: Colors.red),
+                                );
+                              }
+                              return SizedBox.shrink();
+                            });
+                        print(loggedIn);
+                      });
+                      print(loggedIn);
+                      if (loggedIn) {
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (_) => HomePage()));
+                      }
+                    },
                     child: Text(
                       "Sign in",
                       style: TextStyle(
@@ -117,7 +145,11 @@ class _SignInPageState extends State<SignInPage> {
                       ),
                     ),
                   ),
-                )
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                watingWidget
               ],
             ),
           ),
