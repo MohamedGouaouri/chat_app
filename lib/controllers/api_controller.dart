@@ -15,7 +15,8 @@ Future<bool> signIn(username, password) async {
           id: backendResult['user']['id'],
           name: backendResult['user']['name'],
           imageUrl: backendResult['imageUrl'],
-          isOnline: true);
+          isOnline: true,
+          roomPartialCode: backendResult['roomPartialCode']);
 
       return true;
     }
@@ -34,7 +35,8 @@ Future<List<User>> fetchAllUsers() async {
         id: user['id'],
         name: user['name'],
         imageUrl: user['imageUrl'],
-        isOnline: user['isOnline']));
+        isOnline: user['isOnline'],
+        roomPartialCode: user['roomPartialCode']));
   }
   return users;
 }

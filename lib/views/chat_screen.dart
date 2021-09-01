@@ -32,7 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     chatsState = List.from(widget.chats);
     _channel = WebSocketChannel.connect(Uri.parse(
-        'ws://192.168.1.36:8000/ws/${widget.peer.id}_${currentUser.id}/'));
+        'ws://192.168.1.36:8000/ws/${widget.peer.roomPartialCode * currentUser.roomPartialCode}/'));
   }
 
   @override

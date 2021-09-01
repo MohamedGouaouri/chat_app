@@ -5,13 +5,14 @@ class User {
   String name;
   String imageUrl;
   bool isOnline;
+  int roomPartialCode;
 
-  User({
-    required this.id,
-    required this.name,
-    required this.imageUrl,
-    required this.isOnline,
-  });
+  User(
+      {required this.id,
+      required this.name,
+      required this.imageUrl,
+      required this.isOnline,
+      required this.roomPartialCode});
 
   static String toJson(User user) {
     return jsonEncode({
@@ -19,6 +20,7 @@ class User {
       'name': user.name,
       'imageUrl': user.imageUrl,
       'isOnline': user.isOnline,
+      'roomPartialCode': user.roomPartialCode
     });
   }
 
@@ -28,7 +30,8 @@ class User {
         id: data['id'],
         name: data['name'],
         imageUrl: data['imageUrl'],
-        isOnline: data['isOnline']);
+        isOnline: data['isOnline'],
+        roomPartialCode: data['roomPartialCode']);
   }
 
   bool equalTo(User other) {
