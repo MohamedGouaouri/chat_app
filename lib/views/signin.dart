@@ -1,9 +1,6 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:ui';
 
-import 'package:chat_app/controllers/signin_controller.dart';
-import 'package:chat_app/models/user_model.dart';
+import 'package:chat_app/controllers/api_controller.dart';
 import 'package:chat_app/views/home.dart';
 import 'package:flutter/material.dart';
 
@@ -130,9 +127,8 @@ class _SignInPageState extends State<SignInPage> {
                               }
                               return SizedBox.shrink();
                             });
-                        print(loggedIn);
                       });
-                      print(loggedIn);
+
                       if (loggedIn) {
                         Navigator.pushReplacement(context,
                             MaterialPageRoute(builder: (_) => HomePage()));

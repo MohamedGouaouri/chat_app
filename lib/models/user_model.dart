@@ -38,11 +38,3 @@ class User {
 
 // YOU - current user
 late User currentUser;
-
-// USERS
-User ironMan = User(
-  id: 1,
-  name: 'Bhd_sd',
-  imageUrl: 'images/mohamed.jpg',
-  isOnline: true,
-);

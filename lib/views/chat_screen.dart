@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
-
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +31,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     chatsState = List.from(widget.chats);
-    _channel =
-        WebSocketChannel.connect(Uri.parse('ws://127.0.0.1:8000/ws/me_iron/'));
+    _channel = WebSocketChannel.connect(Uri.parse(
+        'ws://192.168.1.36:8000/ws/${widget.peer.id}_${currentUser.id}/'));
   }
 
   @override

@@ -1,9 +1,8 @@
-import 'package:chat_app/models/message_model.dart';
+import 'package:chat_app/controllers/api_controller.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/views/drawer.dart';
 import 'package:flutter/material.dart';
-
-import 'inbox_message.dart';
+import 'user_item_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,6 +12,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Future<List<User>> getUsers() async {
+    List<User> users = await fetchAllUsers();
+    return users;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,15 +42,24 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        body: ListView.builder(
-            itemCount: 1,
-            itemBuilder: (BuildContext context, int index) {
-              return InboxMessageWidget(
-                  message: Message(
-                      sender: ironMan,
-                      text: 'I have something to',
-                      time: '10:30',
-                      unread: true));
+        body: FutureBuilder(
+            future: getUsers(),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<User>> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              var users = snapshot.data!;
+              users.removeWhere((User element) => element.equalTo(currentUser));
+              return ListView.builder(
+                itemCount: users.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return UserItemWidget(user: users[index]);
+                },
+              );
             }));
   }
 }

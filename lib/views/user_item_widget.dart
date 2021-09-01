@@ -1,18 +1,17 @@
-import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/views/chat_screen.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
-class InboxMessageWidget extends StatefulWidget {
-  Message message;
-  InboxMessageWidget({Key? key, required this.message}) : super(key: key);
+class UserItemWidget extends StatefulWidget {
+  User user;
+  UserItemWidget({Key? key, required this.user}) : super(key: key);
 
   @override
-  _InboMessageWidgetState createState() => _InboMessageWidgetState();
+  _UserItemWidgetState createState() => _UserItemWidgetState();
 }
 
-class _InboMessageWidgetState extends State<InboxMessageWidget> {
+class _UserItemWidgetState extends State<UserItemWidget> {
   // build a green dot widget to notify that user is online
   buildUserOnlineNotifier(User user) {
     if (user.isOnline) {
@@ -37,7 +36,7 @@ class _InboMessageWidgetState extends State<InboxMessageWidget> {
             MaterialPageRoute(
                 builder: (_) => ChatScreen(
                       chats: [],
-                      peer: widget.message.sender,
+                      peer: widget.user,
                       currentUser: currentUser,
                     )));
       },
@@ -52,18 +51,12 @@ class _InboMessageWidgetState extends State<InboxMessageWidget> {
               padding: EdgeInsets.all(2),
               child: CircleAvatar(
                 radius: 35,
-                backgroundImage: AssetImage(widget.message.sender.imageUrl),
+                backgroundImage: AssetImage(widget.user.imageUrl),
               ),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(
                     Radius.circular(40),
                   ),
-                  border: widget.message.unread
-                      ? Border.all(
-                          width: 2,
-                          color: Theme.of(context).primaryColor,
-                        )
-                      : null,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.shade100,
@@ -89,29 +82,19 @@ class _InboMessageWidgetState extends State<InboxMessageWidget> {
                       Row(
                         children: [
                           Text(
-                            widget.message.sender.name,
+                            widget.user.name,
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w800),
                           ),
                           SizedBox(
                             width: 5,
                           ),
-                          buildUserOnlineNotifier(widget.message.sender),
+                          buildUserOnlineNotifier(widget.user),
                         ],
                       ),
-                      Text(widget.message.time),
                     ],
                   ),
                 ),
-                Container(
-                  child: Text(
-                    widget.message.text,
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                    overflow: TextOverflow.clip,
-                  ),
-                )
               ],
             ),
           )
