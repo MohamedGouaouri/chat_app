@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 Future<bool> signIn(username, password) async {
   String endpoint =
-      "http://192.168.1.36:8000/chat/auth/login/?username=${username}&password=${password}";
+      "https://a7kim3aya.herokuapp.com/chat/auth/login/?username=${username}&password=${password}";
   var response = await http.get(Uri.parse(endpoint));
   if (response.statusCode == 200) {
     // decode json data
@@ -26,7 +26,7 @@ Future<bool> signIn(username, password) async {
 
 Future<List<User>> fetchAllUsers() async {
   List<User> users = [];
-  String endpoint = "http://192.168.1.36:8000/chat/api/getusers/";
+  String endpoint = "https://a7kim3aya.herokuapp.com/chat/api/getusers/";
   var response = await http.get(Uri.parse(endpoint));
   var usersBackend = jsonDecode(response.body);
   print(response.statusCode);
