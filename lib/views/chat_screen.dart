@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:chat_app/config.dart';
 import 'package:chat_app/controllers/api_controller.dart';
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
@@ -35,7 +36,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     chatsState = List.from(widget.chats);
     _channel = WebSocketChannel.connect(Uri.parse(
-        'ws://127.0.0.1:8000/ws/${widget.peer.roomPartialCode * currentUser.roomPartialCode}/'));
+        '$WS_URL/ws/${widget.peer.roomPartialCode * currentUser.roomPartialCode}/'));
   }
 
   @override
