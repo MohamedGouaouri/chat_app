@@ -1,11 +1,12 @@
 import 'dart:convert';
 
+import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
 Future<bool> signIn(username, password) async {
   String endpoint =
-      "https://a7kim3aya.herokuapp.com/chat/auth/login/?username=${username}&password=${password}";
+      "http://127.0.0.1:8000/chat/auth/login/?username=${username}&password=${password}";
   var response = await http.get(Uri.parse(endpoint));
   if (response.statusCode == 200) {
     // decode json data
@@ -26,10 +27,9 @@ Future<bool> signIn(username, password) async {
 
 Future<List<User>> fetchAllUsers() async {
   List<User> users = [];
-  String endpoint = "https://a7kim3aya.herokuapp.com/chat/api/getusers/";
+  String endpoint = "http://127.0.0.1:8000/chat/api/getusers/";
   var response = await http.get(Uri.parse(endpoint));
   var usersBackend = jsonDecode(response.body);
-  print(response.statusCode);
   for (var user in usersBackend) {
     users.add(User(
         id: user['id'],
@@ -39,4 +39,24 @@ Future<List<User>> fetchAllUsers() async {
         roomPartialCode: user['roomPartialCode']));
   }
   return users;
+}
+
+Future<List<Message>> fetchChatHistory(User from, User to) async {
+  List<Message> messages = [];
+  String endpoint =
+      "http://127.0.0.1:8000/chat/api/get_chats/?from=${from.id}&to=${to.id}";
+  print(endpoint);
+  var response = await http.get(Uri.parse(endpoint));
+  var messagesBackend = jsonDecode(response.body);
+  print(response.statusCode);
+  if (response.statusCode == 200) {
+    for (var message in messagesBackend) {
+      messages.add(Message(
+          sender: from,
+          receiver: to,
+          time: message['time'],
+          text: message['text']));
+    }
+  }
+  return messages;
 }

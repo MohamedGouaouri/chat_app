@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:chat_app/controllers/api_controller.dart';
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,9 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   List<Message> chatsState = [];
+  List<Message> oldChats = [];
   String inputFieldValue = "";
+
   TextEditingController _controller = TextEditingController();
   late final WebSocketChannel _channel;
 
@@ -32,7 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     chatsState = List.from(widget.chats);
     _channel = WebSocketChannel.connect(Uri.parse(
-        'wss://a7kim3aya.herokuapp.com/ws/${widget.peer.roomPartialCode * currentUser.roomPartialCode}/'));
+        'ws://127.0.0.1:8000/ws/${widget.peer.roomPartialCode * currentUser.roomPartialCode}/'));
   }
 
   @override
@@ -49,15 +52,19 @@ class _ChatScreenState extends State<ChatScreen> {
     if (inputFieldValue.isNotEmpty) {
       Message message = Message(
           sender: currentUser,
+          receiver: widget.peer,
           time: '${currentTime.hour}:${currentTime.minute}',
-          text: inputFieldValue,
-          unread: true);
+          text: inputFieldValue);
       String jsonMessage = Message.toJson(message);
       _channel.sink.add(jsonMessage);
       // setState(() {
       //   chatsState.insert(0, message);
       // });
     }
+  }
+
+  Future<List<Message>> getChatHistory() async {
+    return await fetchChatHistory(currentUser, widget.peer);
   }
 
   Widget sendMessageArea() {
@@ -131,45 +138,55 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
+          // widget of the old messages
           Expanded(
-            child: StreamBuilder(
-              stream: _channel.stream,
+            child: FutureBuilder(
+              future: getChatHistory(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {
-                  // get data from snapshot
-                  var data = jsonDecode(snapshot.data);
-                  Message newMessage = Message(
-                      sender: User.fromJson(data['sender']),
-                      time: data['time'],
-                      text: data['text'],
-                      unread: true);
-                  //print(data);
-                  chatsState.insert(0, newMessage);
+                  chatsState = snapshot.data;
                 }
-                return ListView.builder(
-                    itemCount: chatsState.length,
-                    reverse: true,
-                    itemBuilder: (BuildContext context, int index) {
-                      Message message = chatsState[index];
-                      return message.sender.equalTo(currentUser)
-                          ? buildOwnerMessageWidget(
-                              maxWidth:
-                                  MediaQuery.of(context).size.width * 0.65,
-                              messageBody: message.text,
-                              at: message.time,
-                              sender: currentUser,
-                              isSame: isTheSameSender)
-                          : buildSenderMessageWidget(
-                              maxWidth:
-                                  MediaQuery.of(context).size.width * 0.65,
-                              messageBody: message.text,
-                              at: message.time,
-                              sender: message.sender,
-                              isSame: isTheSameSender);
-                    });
+                return StreamBuilder(
+                  stream: _channel.stream,
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData) {
+                      // get data from snapshot
+                      var data = jsonDecode(snapshot.data);
+                      Message newMessage = Message(
+                          sender: User.fromJson(data['sender']),
+                          receiver: widget.peer,
+                          time: data['time'],
+                          text: data['text']);
+                      //print(data);
+                      chatsState.insert(0, newMessage);
+                    }
+                    return ListView.builder(
+                        itemCount: chatsState.length,
+                        reverse: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          Message message = chatsState[index];
+                          return message.sender.equalTo(currentUser)
+                              ? buildOwnerMessageWidget(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.65,
+                                  messageBody: message.text,
+                                  at: message.time,
+                                  sender: currentUser,
+                                  isSame: isTheSameSender)
+                              : buildSenderMessageWidget(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.65,
+                                  messageBody: message.text,
+                                  at: message.time,
+                                  sender: message.sender,
+                                  isSame: isTheSameSender);
+                        });
+                  },
+                );
               },
             ),
           ),
+
           sendMessageArea(),
         ],
       ),
