@@ -53,8 +53,8 @@ Future<List<Message>> fetchChatHistory(User from, User to) async {
   if (response.statusCode == 200) {
     for (var message in messagesBackend) {
       messages.add(Message(
-          sender: from,
-          receiver: to,
+          sender: message['sender']['id'] == from.id ? to : from,
+          receiver: message['receiver']['id'] == to.id ? from : to,
           time: message['time'],
           text: message['text']));
     }

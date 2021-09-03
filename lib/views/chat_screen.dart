@@ -146,6 +146,7 @@ class _ChatScreenState extends State<ChatScreen> {
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {
                   chatsState = snapshot.data;
+                  chatsState = chatsState.reversed.toList();
                 }
                 return StreamBuilder(
                   stream: _channel.stream,
