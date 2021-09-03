@@ -43,20 +43,26 @@ Future<List<User>> fetchAllUsers() async {
   return users;
 }
 
-Future<List<Message>> fetchChatHistory(User from, User to) async {
+// get message from -> to union to -> from
+Future<List<Message>> fetchChatHistory(
+    User first_point, User second_point) async {
   List<Message> messages = [];
-  String endpoint = "$API_URL/chat/api/get_chats/?from=${from.id}&to=${to.id}";
+  String endpoint =
+      "$API_URL/chat/api/get_chats/?from=${first_point.id}&to=${second_point.id}";
   print(endpoint);
   var response = await http.get(Uri.parse(endpoint));
-  var messagesBackend = jsonDecode(response.body);
-  print(response.statusCode);
+  List messagesBackend = jsonDecode(response.body);
   if (response.statusCode == 200) {
     for (var message in messagesBackend) {
       messages.add(Message(
-          sender: message['sender']['id'] == from.id ? to : from,
-          receiver: message['receiver']['id'] == to.id ? from : to,
+          sender: message['message_from']['id'] == first_point.id
+              ? first_point
+              : second_point,
+          receiver: message['message_to']['id'] == second_point.id
+              ? second_point
+              : first_point,
           time: message['time'],
-          text: message['text']));
+          text: message['content']));
     }
   }
   return messages;

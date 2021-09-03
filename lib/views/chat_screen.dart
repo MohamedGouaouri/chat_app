@@ -167,6 +167,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         reverse: true,
                         itemBuilder: (BuildContext context, int index) {
                           Message message = chatsState[index];
+                          //print(message.sender.name);
                           return message.sender.equalTo(currentUser)
                               ? buildOwnerMessageWidget(
                                   maxWidth:
@@ -175,12 +176,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                   at: message.time,
                                   sender: currentUser,
                                   isSame: isTheSameSender)
-                              : buildSenderMessageWidget(
+                              : buildPeerMessageWidget(
                                   maxWidth:
                                       MediaQuery.of(context).size.width * 0.65,
                                   messageBody: message.text,
                                   at: message.time,
-                                  sender: message.sender,
+                                  sender: widget.peer,
                                   isSame: isTheSameSender);
                         });
                   },
@@ -197,7 +198,7 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 // Build a left message bubble of the friend
-Widget buildSenderMessageWidget(
+Widget buildPeerMessageWidget(
     {required User sender,
     required double maxWidth,
     required String messageBody,
@@ -241,7 +242,7 @@ Widget buildSenderMessageWidget(
                 padding: EdgeInsets.fromLTRB(2, 0, 2, 2),
                 child: CircleAvatar(
                   radius: 20,
-                  backgroundImage: AssetImage(sender.imageUrl),
+                  backgroundImage: NetworkImage(sender.imageUrl),
                 ),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(

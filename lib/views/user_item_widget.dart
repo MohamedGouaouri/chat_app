@@ -51,7 +51,7 @@ class _UserItemWidgetState extends State<UserItemWidget> {
               padding: EdgeInsets.all(2),
               child: CircleAvatar(
                 radius: 35,
-                backgroundImage: AssetImage(widget.user.imageUrl),
+                backgroundImage: NetworkImage(widget.user.imageUrl),
               ),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(
